@@ -2,6 +2,7 @@ import { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase/config";
 import { useNavigate } from "react-router-dom";
+import { createUser } from "../services/userService";
 
 function Login() {
 
@@ -12,13 +13,36 @@ function Login() {
 
   const handleLogin = async () => {
 
+    console.log("Entró al login");
+
     try {
 
-      await signInWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
+      console.log("Intentando login");
+
+      const userCredential =
+        await signInWithEmailAndPassword(
+          auth,
+          email,
+          password
+        );
+
+      console.log("Login firebase OK");
+
+      const user = userCredential.user;
+
+      console.log("Guardando usuario");
+
+      await createUser({
+
+        uid: user.uid,
+
+        email: user.email,
+
+        role: "director"
+
+      });
+
+      console.log("Usuario guardado");
 
       alert("Login exitoso");
 
@@ -26,15 +50,18 @@ function Login() {
 
     } catch (error) {
 
-      alert("Error al iniciar sesión");
+      console.log("ERROR:");
 
       console.log(error);
+
+      alert(error.message);
 
     }
 
   };
 
   return (
+
     <div style={{ padding: "20px" }}>
 
       <h1>Login Nexo JA</h1>
@@ -64,7 +91,9 @@ function Login() {
       </button>
 
     </div>
+
   );
+
 }
 
 export default Login;
